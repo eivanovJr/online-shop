@@ -11,7 +11,7 @@ import java.util.UUID
 @Getter
 @DomainEvent(name = "DELIVERY_CHANGE_STATUS_EVENT")
 class DeliveryChangeStatusEvent(
-    private val deliveryId: UUID,
+    val deliveryId: UUID,
     var status: DeliveryStatus
 ) : Event<DeliveryAggregate>(
     id = deliveryId,

@@ -48,7 +48,7 @@ class User(
 
     @StateTransitionFunc
     fun addOrder(event: UserOrderAddedEvent) {
-        orderIds.add(event.id)
+        orderIds.add(event.orderId)
     }
 
     @StateTransitionFunc
@@ -74,8 +74,8 @@ class User(
     fun changeAddress(newAddress: String): UserChangeAddressEvent =
         UserChangeAddressEvent(id, newAddress)
 
-    fun addOrder(order: Order): UserOrderAddedEvent =
-        UserOrderAddedEvent(id, order)
+    fun addOrder(orderId: UUID): UserOrderAddedEvent =
+        UserOrderAddedEvent(id, orderId)
 
     fun deleteOrder(order: Order): UserOrderRemovedEvent =
         UserOrderRemovedEvent(id, order)

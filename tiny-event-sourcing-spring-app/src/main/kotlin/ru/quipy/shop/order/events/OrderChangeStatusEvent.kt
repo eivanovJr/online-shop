@@ -9,8 +9,8 @@ import java.util.UUID
 
 @DomainEvent(name = "ORDER_CHANGE_STATUS_EVENT")
 data class OrderChangeStatusEvent(
-    private val status: OrderStatus,
-    private val orderId: UUID
+    val status: OrderStatus,
+    val orderId: UUID
 ) : Event<OrderAggregate>(
     name = "ORDER_CHANGE_STATUS_EVENT"
 )

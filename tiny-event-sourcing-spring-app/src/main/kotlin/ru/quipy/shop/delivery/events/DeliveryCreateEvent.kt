@@ -13,11 +13,11 @@ import java.util.UUID
 @Getter
 @DomainEvent(name = "DELIVERY_CREATE_EVENT")
 class DeliveryCreateEvent(
-    override val id: UUID,
+    val deliveryId: UUID,
     var address: String,
     var price: Long,
     var date: Date,
+    var orderId: UUID
 ) : Event<DeliveryAggregate>(
-    id = id,
     name = "DELIVERY_CREATE_EVENT"
 )

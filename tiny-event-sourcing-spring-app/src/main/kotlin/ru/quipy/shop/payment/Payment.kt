@@ -15,16 +15,18 @@ import java.util.UUID
 
 class Payment(
     private var id: UUID,
+    private var orderId: UUID,
     private var paymentDate: Optional<Date> = Optional.empty(),
     private var totalPrice: Long,
     private var status: PaymentStatus = PaymentStatus.AWAITING
 ) : AggregateState<UUID, PaymentAggregate> {
 
     override fun getId(): UUID? = id
-
+    fun getOrderId(): UUID = orderId
     @StateTransitionFunc
     fun createPayment(event: PaymentCreateEvent) {
         id = event.paymentId
+        orderId = event.orderId
         totalPrice = event.totalPrice
     }
 
@@ -38,8 +40,8 @@ class Payment(
         paymentDate = Optional.of(event.date)
     }
 
-    fun createPayment(totalPrice: Long): PaymentCreateEvent =
-        PaymentCreateEvent(id, totalPrice)
+    fun createPayment(id: UUID, orderId:UUID, totalPrice: Long): PaymentCreateEvent =
+        PaymentCreateEvent(id, orderId, totalPrice)
 
     fun changeStatus(status: PaymentStatus): PaymentChangeStatusEvent =
         PaymentChangeStatusEvent(id, status)

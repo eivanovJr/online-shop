@@ -12,6 +12,8 @@ class PaymentCreateEvent(
     @Getter
     val paymentId: UUID,
     @Getter
+    val orderId: UUID,
+    @Getter
     val totalPrice: Long
 ) : Event<PaymentAggregate>(
     name = "PAYMENT_CREATE_EVENT"

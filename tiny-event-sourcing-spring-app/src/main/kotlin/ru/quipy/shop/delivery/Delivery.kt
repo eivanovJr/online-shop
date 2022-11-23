@@ -12,13 +12,16 @@ import java.util.*
 class Delivery : AggregateState<UUID, DeliveryAggregate> {
 
     private lateinit var deliveryEntity: DeliveryEntity
+    private lateinit var orderId: UUID
     private var status: DeliveryStatus = DeliveryStatus.BOOKED
 
     override fun getId(): UUID = deliveryEntity.id
+    fun getOrderId(): UUID = orderId
 
     @StateTransitionFunc
     fun createDelivery(event: DeliveryCreateEvent) {
-        deliveryEntity = DeliveryEntity(event.id, event.address, event.price, event.date)
+        deliveryEntity = DeliveryEntity(event.deliveryId, event.address, event.price, event.date)
+        orderId = event.orderId
     }
 
     @StateTransitionFunc
@@ -31,8 +34,8 @@ class Delivery : AggregateState<UUID, DeliveryAggregate> {
         deliveryEntity.date = event.date
     }
 
-    fun createDelivery(id: UUID, address: String, price: Long, date: Date): DeliveryCreateEvent =
-        DeliveryCreateEvent(id, address, price, date)
+    fun createDelivery(id: UUID, address: String, price: Long, date: Date, orderId: UUID): DeliveryCreateEvent =
+        DeliveryCreateEvent(id, address, price, date, orderId)
 
     fun changeStatus(status: DeliveryStatus): DeliveryChangeStatusEvent =
         //проверка на корректный статус

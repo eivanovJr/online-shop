@@ -12,7 +12,7 @@ import java.util.UUID
 @DomainEvent(name = "USER_ORDER_ADDED_EVENT")
 class UserOrderAddedEvent(
     val userId: UUID,
-    val order: Order
+    val orderId: UUID
 ) : Event<UserAggregate>(
     name = "USER_ORDER_ADDED_EVENT"
 )
