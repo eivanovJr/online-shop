@@ -21,7 +21,7 @@ class Payment(
     private var status: PaymentStatus = PaymentStatus.AWAITING
 ) : AggregateState<UUID, PaymentAggregate> {
 
-    override fun getId(): UUID? = id
+    override fun getId(): UUID = id
     fun getOrderId(): UUID = orderId
     @StateTransitionFunc
     fun createPayment(event: PaymentCreateEvent) {

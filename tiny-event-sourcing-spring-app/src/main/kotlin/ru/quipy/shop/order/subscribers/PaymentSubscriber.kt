@@ -15,6 +15,7 @@ import ru.quipy.shop.payment.Payment
 import ru.quipy.shop.payment.PaymentAggregate
 import ru.quipy.shop.payment.entities.PaymentStatus
 import ru.quipy.shop.payment.events.PaymentChangeStatusEvent
+import ru.quipy.shop.payment.events.PaymentCreateEvent
 import ru.quipy.streams.AggregateSubscriptionsManager
 import java.time.Instant
 import java.util.*
@@ -32,10 +33,17 @@ class PaymentSubscriber(
     @PostConstruct
     fun init() {
         subscriptionsManager.createSubscriber(PaymentAggregate::class, "user::order-subscriber") {
+            `when`(PaymentCreateEvent::class) { event ->
+                val payment = paymentESService.getState(event.paymentId) ?: throw Exception("") //TODO: exception msg
+                val order = orderESService.getState(event.orderId) ?: throw Exception("") //TODO: exception msg
+                val orderPaymentSetEvent = order.setPayment(event.paymentId)
+                order.paymentSet(orderPaymentSetEvent)
+
+            }
             `when`(PaymentChangeStatusEvent::class) { event ->
                 if (event.status == PaymentStatus.SUCCESSFULL) {
-                    var payment = paymentESService.getState(event.paymentId)
-                    var delivery = Delivery()
+                    val payment = paymentESService.getState(event.paymentId)
+                    val delivery = Delivery()
                     if (payment != null) {
                         orderESService.update(payment.getOrderId()) { order ->
                             order.changeStatus(OrderStatus.PAID)
