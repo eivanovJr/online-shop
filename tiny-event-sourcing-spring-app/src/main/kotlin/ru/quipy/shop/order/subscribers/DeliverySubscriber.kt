@@ -32,7 +32,7 @@ class DeliverySubscriber(
 
     @PostConstruct
     fun init() {
-        subscriptionsManager.createSubscriber(DeliveryAggregate::class, "user::order-subscriber") {
+        subscriptionsManager.createSubscriber(DeliveryAggregate::class, "user::delivery-subscriber") {
             `when`(DeliveryChangeStatusEvent::class) { event ->
                 if (event.status == DeliveryStatus.DELIVERED) {
                     var delivery = deliveryESService.getState(event.deliveryId)
@@ -41,7 +41,14 @@ class DeliverySubscriber(
                             it.changeStatus(OrderStatus.COMPLETED)
                         }
                     }
-                } //else if (другие статусы доставки)
+                } else if (event.status == DeliveryStatus.BOOKED || event.status == DeliveryStatus.DELAYED) {
+                    var delivery = deliveryESService.getState(event.deliveryId)
+                    if (delivery != null) {
+                        orderESService.update(delivery.getOrderId()) {
+                            it.changeStatus(OrderStatus.SHIPPING)
+                        }
+                    }
+                }
             }
 
             `when`(DeliveryCreateEvent::class) { event ->

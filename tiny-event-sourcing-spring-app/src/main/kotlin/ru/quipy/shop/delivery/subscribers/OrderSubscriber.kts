@@ -1,47 +1,48 @@
-package ru.quipy.shop.payment.subscribers
+package ru.quipy.shop.order.subscribers
 
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import org.springframework.stereotype.Component
 import ru.quipy.core.EventSourcingService
 import ru.quipy.shop.delivery.Delivery
 import ru.quipy.shop.delivery.DeliveryAggregate
+import ru.quipy.shop.delivery.DeliveryStatus
+import ru.quipy.shop.delivery.events.DeliveryChangeStatusEvent
+import ru.quipy.shop.delivery.events.DeliveryCreateEvent
 import ru.quipy.shop.order.Order
 import ru.quipy.shop.order.OrderAggregate
 import ru.quipy.shop.order.entities.OrderStatus
-import ru.quipy.shop.order.events.OrderChangeStatusEvent
-import ru.quipy.shop.payment.Payment
-import ru.quipy.shop.payment.PaymentAggregate
+import ru.quipy.shop.order.events.OrderCreatedEvent
+import ru.quipy.shop.product.ProductAggregate
+import ru.quipy.shop.product.events.ProductChangePrice
+import ru.quipy.shop.user.User
+import ru.quipy.shop.user.UserAggregate
+import ru.quipy.shop.user.subscribers.OrderSubscriber
 import ru.quipy.streams.AggregateSubscriptionsManager
-import java.util.UUID
+import java.util.*
 import javax.annotation.PostConstruct
 
+@Component
 class OrderSubscriber(
     private val subscriptionsManager: AggregateSubscriptionsManager,
     private val orderESService: EventSourcingService<UUID, OrderAggregate, Order>,
-    private val paymentESService: EventSourcingService<UUID, PaymentAggregate, Payment>,
     private val deliveryESService: EventSourcingService<UUID, DeliveryAggregate, Delivery>
 ) {
     private val logger: Logger = LoggerFactory.getLogger(OrderSubscriber::class.java)
 
     @PostConstruct
     fun init() {
-        subscriptionsManager.createSubscriber(OrderAggregate::class, "payment::order-subscriber") {
+        subscriptionsManager.createSubscriber(OrderAggregate::class, "user::order-subscriber") {
             `when`(OrderChangeStatusEvent::class) { event ->
-//                if(event.status == OrderStatus.BOOKED) {
-//                    val order = paymentESService.getState(event.orderId)
-//                    val payment = Payment() // возвращает объект паймент
-//                    payment.createPayment() // создает ивент и возвращает
-//                }
-                if (event.status == OrderStatus.BOOKED) {
+                if (event.status == OrderStatus.PAID) {
                     var order = orderESService.getState(event.orderId)
                     if (order != null) {
-                        paymentESService.update(order.getPaymentId()) {
-                            it.changeStatus(PaymentStatus.AWAITING)
+                        deliveryESService.update(order.getOrderId()) {
+                            it.changeStatus(DeliveryStatus.PAID)
                         }
                     }
                 }
             }
-
         }
     }
 }

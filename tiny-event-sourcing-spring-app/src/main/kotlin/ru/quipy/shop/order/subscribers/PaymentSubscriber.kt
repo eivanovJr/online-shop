@@ -32,7 +32,7 @@ class PaymentSubscriber(
 
     @PostConstruct
     fun init() {
-        subscriptionsManager.createSubscriber(PaymentAggregate::class, "user::order-subscriber") {
+        subscriptionsManager.createSubscriber(PaymentAggregate::class, "user::payment-subscriber") {
             `when`(PaymentCreateEvent::class) { event ->
                 val payment = paymentESService.getState(event.paymentId) ?: throw Exception("") //TODO: exception msg
                 val order = orderESService.getState(event.orderId) ?: throw Exception("") //TODO: exception msg
