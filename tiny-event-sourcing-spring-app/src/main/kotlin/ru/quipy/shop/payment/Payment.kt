@@ -13,16 +13,15 @@ import java.util.Date
 import java.util.Optional
 import java.util.UUID
 
-class Payment(
-    private var id: UUID,
-    private var orderId: UUID,
-    private var paymentDate: Optional<Date> = Optional.empty(),
-    private var totalPrice: Long,
+class Payment : AggregateState<UUID, PaymentAggregate> {
+    private lateinit var id: UUID
+    private lateinit var orderId: UUID
+    private var paymentDate: Optional<Date> = Optional.empty()
+    private var totalPrice: Long = 0
     private var status: PaymentStatus = PaymentStatus.AWAITING
-) : AggregateState<UUID, PaymentAggregate> {
-
     override fun getId(): UUID = id
     fun getOrderId(): UUID = orderId
+
     @StateTransitionFunc
     fun createPayment(event: PaymentCreateEvent) {
         id = event.paymentId
@@ -40,7 +39,7 @@ class Payment(
         paymentDate = Optional.of(event.date)
     }
 
-    fun createPayment(id: UUID, orderId:UUID, totalPrice: Long): PaymentCreateEvent =
+    fun createPayment(id: UUID, orderId: UUID, totalPrice: Long): PaymentCreateEvent =
         PaymentCreateEvent(id, orderId, totalPrice)
 
     fun changeStatus(status: PaymentStatus): PaymentChangeStatusEvent =

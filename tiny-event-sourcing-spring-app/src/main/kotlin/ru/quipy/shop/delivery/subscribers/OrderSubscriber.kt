@@ -12,6 +12,7 @@ import ru.quipy.shop.delivery.events.DeliveryCreateEvent
 import ru.quipy.shop.order.Order
 import ru.quipy.shop.order.OrderAggregate
 import ru.quipy.shop.order.entities.OrderStatus
+import ru.quipy.shop.order.events.OrderChangeStatusEvent
 import ru.quipy.shop.order.events.OrderCreatedEvent
 import ru.quipy.shop.product.ProductAggregate
 import ru.quipy.shop.product.events.ProductChangePrice
@@ -35,11 +36,10 @@ class OrderSubscriber(
         subscriptionsManager.createSubscriber(OrderAggregate::class, "user::order-subscriber") {
             `when`(OrderChangeStatusEvent::class) { event ->
                 if (event.status == OrderStatus.PAID) {
-                    var order = orderESService.getState(event.orderId)
-                    if (order != null) {
-                        deliveryESService.update(order.getOrderId()) {
-                            it.changeStatus(DeliveryStatus.PAID)
-                        }
+                    var order = orderESService.getState(event.orderId) ?:
+                        throw NullPointerException("") //TODO: exception msg
+                    deliveryESService.update(order.getId()!!) {
+                        it.changeStatus(DeliveryStatus.PAID)
                     }
                 }
             }

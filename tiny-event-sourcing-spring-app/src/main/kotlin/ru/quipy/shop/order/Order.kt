@@ -11,21 +11,15 @@ import java.util.*
 import kotlin.collections.HashMap
 
 
-class Order(
-    private var id: UUID,
-    var userId: UUID,
-    private val products: HashMap<UUID, Int> = HashMap(),
-
-    var price: Long = 0L,
-
-    var assemblingTime: Long, // это хз, может снести
-
-    val status: OrderStatus = OrderStatus.COLLECTING,
-
-    var deliveryId: Optional<UUID> = Optional.empty(),
-
+class Order : AggregateState<UUID, OrderAggregate> {
+    private lateinit var id: UUID
+    lateinit var userId: UUID
+    private val products: HashMap<UUID, Int> = HashMap()
+    var price: Long = 0L
+    var assemblingTime: Long = 0 // это хз, может снести
+    val status: OrderStatus = OrderStatus.COLLECTING
+    var deliveryId: Optional<UUID> = Optional.empty()
     var paymentId: Optional<UUID> = Optional.empty()
-) : AggregateState<UUID, OrderAggregate> {
 
     @StateTransitionFunc
     fun addProduct(event: OrderProductAddedEvent) {

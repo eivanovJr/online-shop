@@ -33,15 +33,14 @@ class OrderSubscriber(
 //                    payment.createPayment() // создает ивент и возвращает
 //                }
                 if (event.status == OrderStatus.BOOKED) {
-                    var order = orderESService.getState(event.orderId)
-                    if (order != null) {
-                        paymentESService.update(order.getPaymentId()) {
-                            it.changeStatus(PaymentStatus.AWAITING)
-                        }
-                    }
+//                    var order = orderESService.getState(event.orderId)
+//                    if (order != null) {
+//                        paymentESService.update(order.getPaymentId()) {
+//                            it.changeStatus(PaymentStatus.AWAITING)
+//                        }
                 }
             }
-
         }
+
     }
 }

@@ -23,10 +23,10 @@ import javax.annotation.PostConstruct
 
 @Component
 class PaymentSubscriber(
-        private val subscriptionsManager: AggregateSubscriptionsManager,
-        private val orderESService: EventSourcingService<UUID, OrderAggregate, Order>,
-        private val paymentESService: EventSourcingService<UUID, PaymentAggregate, Payment>,
-        private val deliveryESService: EventSourcingService<UUID, DeliveryAggregate, Delivery>
+    private val subscriptionsManager: AggregateSubscriptionsManager,
+    private val orderESService: EventSourcingService<UUID, OrderAggregate, Order>,
+    private val paymentESService: EventSourcingService<UUID, PaymentAggregate, Payment>,
+    private val deliveryESService: EventSourcingService<UUID, DeliveryAggregate, Delivery>
 ) {
     private val logger: Logger = LoggerFactory.getLogger(PaymentSubscriber::class.java)
 
@@ -34,22 +34,29 @@ class PaymentSubscriber(
     fun init() {
         subscriptionsManager.createSubscriber(PaymentAggregate::class, "user::payment-subscriber") {
             `when`(PaymentCreateEvent::class) { event ->
-                val payment = paymentESService.getState(event.paymentId) ?: throw Exception("") //TODO: exception msg
-                val order = orderESService.getState(event.orderId) ?: throw Exception("") //TODO: exception msg
+                val payment = paymentESService.getState(event.paymentId) ?:
+                    throw NullPointerException("") //TODO: exception msg
+                val order = orderESService.getState(event.orderId) ?:
+                    throw NullPointerException("") //TODO: exception msg
                 val orderPaymentSetEvent = order.setPayment(event.paymentId)
                 order.paymentSet(orderPaymentSetEvent)
 
             }
             `when`(PaymentChangeStatusEvent::class) { event ->
                 if (event.status == PaymentStatus.SUCCESSFULL) {
-                    val payment = paymentESService.getState(event.paymentId)
+                    val payment = paymentESService.getState(event.paymentId) ?:
+                        throw NullPointerException("") //TODO: exception msg
                     val delivery = Delivery()
-                    if (payment != null) {
-                        orderESService.update(payment.getOrderId()) { order ->
-                            order.changeStatus(OrderStatus.PAID)
-                        }
-                        delivery.createDelivery(UUID.randomUUID(), "address", 200, Date.from(Instant.now()), payment.getOrderId())
+                    orderESService.update(payment.getOrderId()) { order ->
+                        order.changeStatus(OrderStatus.PAID)
                     }
+                    delivery.createDelivery(
+                        UUID.randomUUID(),
+                        "address",
+                        200,
+                        Date.from(Instant.now()),
+                        payment.getOrderId()
+                    )
                 }
             }
         }

@@ -14,12 +14,13 @@ import java.util.UUID
 
 @Getter
 @AllArgsConstructor
-class Product(
-    private var id: UUID,
-    val name: String,
+class Product : AggregateState<UUID, ProductAggregate> {
+    private lateinit var id: UUID
+    lateinit var name: String
     @Setter
     var price: Long
-) : AggregateState<UUID, ProductAggregate> {
+        get() = price
+
 
     @StateTransitionFunc
     fun createProduct(event: ProductCreateEvent) {
