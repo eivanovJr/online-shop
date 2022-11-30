@@ -14,7 +14,9 @@ import java.util.UUID
 class OrderProductAddedEvent(
     @Getter
     private val orderId: UUID,
-    @Getter val product: Product
+    @Getter val productId: UUID,
+    val quantity: Int,
+    val price: Long
 ) : Event<OrderAggregate>(
     name = "PRODUCT_ADDED_EVENT"
 )

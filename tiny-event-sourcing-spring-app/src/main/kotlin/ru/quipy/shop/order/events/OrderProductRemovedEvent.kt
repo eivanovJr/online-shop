@@ -3,8 +3,8 @@ package ru.quipy.shop.order.events
 import lombok.Getter
 import ru.quipy.core.annotations.DomainEvent
 import ru.quipy.domain.Event
-import ru.quipy.shop.order.entities.Product
 import ru.quipy.shop.order.OrderAggregate
+import ru.quipy.shop.product.Product
 
 import java.util.UUID
 

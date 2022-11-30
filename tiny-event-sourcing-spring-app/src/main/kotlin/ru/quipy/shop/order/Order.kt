@@ -3,8 +3,8 @@ package ru.quipy.shop.order
 import ru.quipy.core.annotations.StateTransitionFunc
 import ru.quipy.domain.AggregateState
 import ru.quipy.shop.order.entities.OrderStatus
-import ru.quipy.shop.order.entities.Product
 import ru.quipy.shop.order.events.*
+import ru.quipy.shop.product.Product
 import java.lang.Exception
 import java.lang.IllegalArgumentException
 import java.util.*
@@ -23,14 +23,14 @@ class Order : AggregateState<UUID, OrderAggregate> {
 
     @StateTransitionFunc
     fun addProduct(event: OrderProductAddedEvent) {
-        val productId = event.product.id
+        val productId = event.productId
         products[productId] = products.getOrDefault(productId, 0) + 1
-        price += event.product.price
+        price += event.price * event.quantity
     }
 
     @StateTransitionFunc
     fun removeProduct(event: OrderProductRemovedEvent) {
-        val productId = event.product.id
+        val productId = event.product.getId()!!
         val quantity = products[productId] ?: throw IllegalArgumentException("No such product in order $id")
         if (quantity == 1) {
             products.remove(productId)
@@ -61,8 +61,8 @@ class Order : AggregateState<UUID, OrderAggregate> {
         paymentId = Optional.of(event.paymentId)
     }
 
-    fun createOrder(id: UUID, userId: UUID): OrderCreatedEvent =
-        OrderCreatedEvent(id, userId)
+    fun createOrder(userId: UUID): OrderCreatedEvent =
+        OrderCreatedEvent(UUID.randomUUID(), userId)
 
     fun setDelivery(deliveryId: UUID): OrderDeliverySetEvent =
         if (this.deliveryId.isPresent)
@@ -76,19 +76,26 @@ class Order : AggregateState<UUID, OrderAggregate> {
         else
             OrderPaymentSetEvent(this.id, paymentId)
 
-    fun addProduct(product: Product): OrderProductAddedEvent =
-        OrderProductAddedEvent(this.id, product)
+    fun addProduct(productId: UUID, quantity:Int, price: Long): OrderProductAddedEvent =
+        OrderProductAddedEvent(this.id, productId, quantity, price)
 
 
     fun deleteProduct(product: Product): OrderProductRemovedEvent =
-        if (!products.containsKey(product.id))
+        if (!products.containsKey(product.getId()))
             throw IllegalStateException("no such product in order")
         else
             OrderProductRemovedEvent(this.id, product)
 
-    fun changeStatus(status: OrderStatus): OrderChangeStatusEvent =
-        //проверка, что из текущего статуса можно получить желаемый ???
-        OrderChangeStatusEvent(status, this.id)
+    fun changeStatus(status: OrderStatus): OrderChangeStatusEvent {
+        if (this.status == OrderStatus.COLLECTING && status == OrderStatus.BOOKED) {
+            if (products.size > 0)
+                return OrderChangeStatusEvent(status, this.id)
+            else
+                throw java.lang.IllegalStateException("No Products in the order!")
+        }
+        //тут логику потом добавить на другие статусы
+        return OrderChangeStatusEvent(status, this.id)
+    }
 
     override fun getId(): UUID? = id
 
