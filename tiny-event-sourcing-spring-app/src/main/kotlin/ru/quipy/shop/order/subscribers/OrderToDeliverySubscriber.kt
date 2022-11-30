@@ -12,27 +12,21 @@ import ru.quipy.shop.delivery.events.DeliveryCreateEvent
 import ru.quipy.shop.order.Order
 import ru.quipy.shop.order.OrderAggregate
 import ru.quipy.shop.order.entities.OrderStatus
-import ru.quipy.shop.order.events.OrderCreatedEvent
-import ru.quipy.shop.product.ProductAggregate
-import ru.quipy.shop.product.events.ProductChangePrice
-import ru.quipy.shop.user.User
-import ru.quipy.shop.user.UserAggregate
-import ru.quipy.shop.user.subscribers.OrderSubscriber
 import ru.quipy.streams.AggregateSubscriptionsManager
 import java.util.*
 import javax.annotation.PostConstruct
 
 @Component
-class DeliverySubscriber(
+class OrderToDeliverySubscriber(
         private val subscriptionsManager: AggregateSubscriptionsManager,
         private val orderESService: EventSourcingService<UUID, OrderAggregate, Order>,
         private val deliveryESService: EventSourcingService<UUID, DeliveryAggregate, Delivery>
 ) {
-    private val logger: Logger = LoggerFactory.getLogger(DeliverySubscriber::class.java)
+    private val logger: Logger = LoggerFactory.getLogger(OrderToDeliverySubscriber::class.java)
 
     @PostConstruct
     fun init() {
-        subscriptionsManager.createSubscriber(DeliveryAggregate::class, "user::delivery-subscriber") {
+        subscriptionsManager.createSubscriber(DeliveryAggregate::class, "order::delivery-subscriber") {
             `when`(DeliveryChangeStatusEvent::class) { event ->
                 if (event.status == DeliveryStatus.DELIVERED) {
                     val delivery = deliveryESService.getState(event.deliveryId) ?:

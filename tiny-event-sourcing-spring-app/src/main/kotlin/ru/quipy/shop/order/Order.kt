@@ -17,7 +17,7 @@ class Order : AggregateState<UUID, OrderAggregate> {
     private val products: HashMap<UUID, Int> = HashMap()
     var price: Long = 0L
     var assemblingTime: Long = 0 // это хз, может снести
-    val status: OrderStatus = OrderStatus.COLLECTING
+    var status: OrderStatus = OrderStatus.COLLECTING
     var deliveryId: Optional<UUID> = Optional.empty()
     var paymentId: Optional<UUID> = Optional.empty()
 
@@ -38,6 +38,11 @@ class Order : AggregateState<UUID, OrderAggregate> {
             products[productId] = products[productId]!! - 1
         }
         price -= event.product.price
+    }
+
+    @StateTransitionFunc
+    fun changeStatus(event: OrderChangeStatusEvent) {
+        status = event.status;
     }
 
     @StateTransitionFunc

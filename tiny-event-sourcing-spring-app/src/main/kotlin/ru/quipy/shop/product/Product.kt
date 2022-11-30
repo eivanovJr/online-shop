@@ -18,7 +18,7 @@ class Product : AggregateState<UUID, ProductAggregate> {
     private lateinit var id: UUID
     lateinit var name: String
     @Setter
-    var price: Long
+    var price: Long = 0
         get() = price
 
 

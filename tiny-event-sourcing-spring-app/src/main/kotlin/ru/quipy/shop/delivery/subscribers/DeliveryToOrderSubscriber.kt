@@ -1,4 +1,4 @@
-package ru.quipy.shop.order.subscribers
+package ru.quipy.shop.delivery.subscribers
 
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -7,33 +7,26 @@ import ru.quipy.core.EventSourcingService
 import ru.quipy.shop.delivery.Delivery
 import ru.quipy.shop.delivery.DeliveryAggregate
 import ru.quipy.shop.delivery.DeliveryStatus
-import ru.quipy.shop.delivery.events.DeliveryChangeStatusEvent
-import ru.quipy.shop.delivery.events.DeliveryCreateEvent
 import ru.quipy.shop.order.Order
 import ru.quipy.shop.order.OrderAggregate
 import ru.quipy.shop.order.entities.OrderStatus
 import ru.quipy.shop.order.events.OrderChangeStatusEvent
-import ru.quipy.shop.order.events.OrderCreatedEvent
-import ru.quipy.shop.product.ProductAggregate
-import ru.quipy.shop.product.events.ProductChangePrice
-import ru.quipy.shop.user.User
-import ru.quipy.shop.user.UserAggregate
-import ru.quipy.shop.user.subscribers.OrderSubscriber
+import ru.quipy.shop.user.subscribers.UserToOrderSubscriber
 import ru.quipy.streams.AggregateSubscriptionsManager
 import java.util.*
 import javax.annotation.PostConstruct
 
 @Component
-class OrderSubscriber(
+class DeliveryToOrderSubscriber(
     private val subscriptionsManager: AggregateSubscriptionsManager,
     private val orderESService: EventSourcingService<UUID, OrderAggregate, Order>,
     private val deliveryESService: EventSourcingService<UUID, DeliveryAggregate, Delivery>
 ) {
-    private val logger: Logger = LoggerFactory.getLogger(OrderSubscriber::class.java)
+    private val logger: Logger = LoggerFactory.getLogger(UserToOrderSubscriber::class.java)
 
     @PostConstruct
     fun init() {
-        subscriptionsManager.createSubscriber(OrderAggregate::class, "user::order-subscriber") {
+        subscriptionsManager.createSubscriber(OrderAggregate::class, "delivery::order-subscriber") {
             `when`(OrderChangeStatusEvent::class) { event ->
                 if (event.status == OrderStatus.PAID) {
                     var order = orderESService.getState(event.orderId) ?:

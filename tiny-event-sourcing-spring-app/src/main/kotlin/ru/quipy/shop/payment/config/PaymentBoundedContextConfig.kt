@@ -12,7 +12,7 @@ import ru.quipy.shop.payment.PaymentAggregate
 import java.util.*
 
 @Configuration
-class DeliveryBoundedContextConfig {
+class PaymentBoundedContextConfig {
     @Autowired
     private lateinit var eventSourcingServiceFactory: EventSourcingServiceFactory
 

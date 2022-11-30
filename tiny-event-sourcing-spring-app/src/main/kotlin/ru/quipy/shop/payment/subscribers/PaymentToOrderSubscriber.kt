@@ -15,13 +15,13 @@ import ru.quipy.streams.AggregateSubscriptionsManager
 import java.util.UUID
 import javax.annotation.PostConstruct
 
-class OrderSubscriber(
+class PaymentToOrderSubscriber(
     private val subscriptionsManager: AggregateSubscriptionsManager,
     private val orderESService: EventSourcingService<UUID, OrderAggregate, Order>,
     private val paymentESService: EventSourcingService<UUID, PaymentAggregate, Payment>,
     private val deliveryESService: EventSourcingService<UUID, DeliveryAggregate, Delivery>
 ) {
-    private val logger: Logger = LoggerFactory.getLogger(OrderSubscriber::class.java)
+    private val logger: Logger = LoggerFactory.getLogger(PaymentToOrderSubscriber::class.java)
 
     @PostConstruct
     fun init() {

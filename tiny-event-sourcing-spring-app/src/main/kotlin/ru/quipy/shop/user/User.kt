@@ -8,16 +8,15 @@ import ru.quipy.shop.user.events.*
 import java.util.ArrayList
 import java.util.UUID
 
-class User(
-    private val id: UUID,
-    var firstName: String,
-    var lastName: String,
-    var phone: String,
-    var email: String,
-    var address: String,
-    val orderIds: MutableList<UUID> = mutableListOf()
-) : AggregateState<UUID, UserAggregate> {
+class User : AggregateState<UUID, UserAggregate> {
 
+    private lateinit var id: UUID
+    lateinit var firstName: String
+    lateinit var lastName: String
+    lateinit var phone: String
+    lateinit var email: String
+    lateinit var address: String
+    val orderIds: MutableList<UUID> = mutableListOf()
 
     override fun getId(): UUID? = id
 

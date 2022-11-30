@@ -6,8 +6,6 @@ import org.springframework.stereotype.Component
 import ru.quipy.core.EventSourcingService
 import ru.quipy.shop.delivery.Delivery
 import ru.quipy.shop.delivery.DeliveryAggregate
-import ru.quipy.shop.delivery.DeliveryStatus
-import ru.quipy.shop.delivery.events.DeliveryChangeStatusEvent
 import ru.quipy.shop.order.Order
 import ru.quipy.shop.order.OrderAggregate
 import ru.quipy.shop.order.entities.OrderStatus
@@ -22,17 +20,17 @@ import java.util.*
 import javax.annotation.PostConstruct
 
 @Component
-class PaymentSubscriber(
+class OrderToPaymentSubscriber(
     private val subscriptionsManager: AggregateSubscriptionsManager,
     private val orderESService: EventSourcingService<UUID, OrderAggregate, Order>,
     private val paymentESService: EventSourcingService<UUID, PaymentAggregate, Payment>,
     private val deliveryESService: EventSourcingService<UUID, DeliveryAggregate, Delivery>
 ) {
-    private val logger: Logger = LoggerFactory.getLogger(PaymentSubscriber::class.java)
+    private val logger: Logger = LoggerFactory.getLogger(OrderToPaymentSubscriber::class.java)
 
     @PostConstruct
     fun init() {
-        subscriptionsManager.createSubscriber(PaymentAggregate::class, "user::payment-subscriber") {
+        subscriptionsManager.createSubscriber(PaymentAggregate::class, "order::payment-subscriber") {
             `when`(PaymentCreateEvent::class) { event ->
                 val payment = paymentESService.getState(event.paymentId) ?:
                     throw NullPointerException("") //TODO: exception msg
