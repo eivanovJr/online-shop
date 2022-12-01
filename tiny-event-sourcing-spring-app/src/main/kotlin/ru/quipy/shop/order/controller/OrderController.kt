@@ -19,13 +19,13 @@ import ru.quipy.shop.product.ProductAggregate
 import java.util.*
 
 @RestController
-@RequestMapping("/accounts")
+@RequestMapping("/orders")
 class OrderController(
         val orderEsService: EventSourcingService<UUID, OrderAggregate, Order>,
         val productEsService: EventSourcingService<UUID, ProductAggregate, Product>
 ) {
 
-    @PostMapping("/{orderId}")
+    @PostMapping("/{userId}")
     fun createOrder(@PathVariable userId: UUID) : OrderCreatedEvent {
         return orderEsService.create { it.createOrder(userId = userId) }
     }
@@ -35,19 +35,19 @@ class OrderController(
         return orderEsService.getState(orderId)
     }
 
-    @PostMapping("/{orderId}/add")
+    @PutMapping("/{orderId}/add")
     fun addProduct(@PathVariable orderId: UUID, @RequestParam productId: UUID, @RequestParam quantity: Int) : OrderProductAddedEvent {
         val price = productEsService.getState(productId)!!.price
         return orderEsService.update(orderId) { it.addProduct(productId, quantity, price) }
     }
 
-    @PostMapping("/{orderId}/delete")
+    @DeleteMapping("/{orderId}")
     fun deleteProduct(@PathVariable orderId: UUID, @RequestParam productId: UUID) : OrderProductRemovedEvent {
         val product = productEsService.getState(productId)!!
         return orderEsService.update(orderId) { it.deleteProduct(product)}
     }
 
-    @PostMapping("/{orderId}/finalize")
+    @PutMapping("/{orderId}/finalize")
     fun finalizeOrder(@PathVariable orderId: UUID) : OrderChangeStatusEvent {
         return orderEsService.update(orderId) { it.changeStatus(OrderStatus.BOOKED)}
     }

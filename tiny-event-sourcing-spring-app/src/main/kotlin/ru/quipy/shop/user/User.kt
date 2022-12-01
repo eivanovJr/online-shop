@@ -11,11 +11,11 @@ import java.util.UUID
 class User : AggregateState<UUID, UserAggregate> {
 
     private lateinit var id: UUID
-    lateinit var firstName: String
-    lateinit var lastName: String
-    lateinit var phone: String
-    lateinit var email: String
-    lateinit var address: String
+    private lateinit var firstName: String
+    private lateinit var lastName: String
+    private lateinit var phone: String
+    private lateinit var email: String
+    private lateinit var address: String
     val orderIds: MutableList<UUID> = mutableListOf()
 
     override fun getId(): UUID? = id
@@ -57,6 +57,22 @@ class User : AggregateState<UUID, UserAggregate> {
         }
         orderIds.removeIf { it == event.id }
     }
+
+    fun createUser(
+        firstName: String,
+        lastName: String,
+        phone: String,
+        email: String,
+        address: String
+    ): UserCreatedEvent = UserCreatedEvent(
+        UUID.randomUUID(),
+        firstName,
+        lastName,
+        phone,
+        email,
+        address
+    )
+
 
     fun changeFirstName(newFirstName: String): UserChangeFirstNameEvent =
         UserChangeFirstNameEvent(id, newFirstName)

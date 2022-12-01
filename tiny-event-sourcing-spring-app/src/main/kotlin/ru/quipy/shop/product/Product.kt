@@ -5,8 +5,6 @@ import lombok.Getter
 import lombok.Setter
 import ru.quipy.core.annotations.StateTransitionFunc
 import ru.quipy.domain.AggregateState
-import ru.quipy.shop.payment.entities.PaymentStatus
-import ru.quipy.shop.payment.events.PaymentChangeStatusEvent
 import ru.quipy.shop.product.events.ProductChangePrice
 import ru.quipy.shop.product.events.ProductCreateEvent
 
@@ -32,11 +30,11 @@ class Product : AggregateState<UUID, ProductAggregate> {
         price = event.price
     }
 
-    fun changeStatus(price: Long): ProductChangePrice =
+    fun changePrice(price: Long): ProductChangePrice =
         ProductChangePrice(id, price)
 
-    fun createProduct(totalPrice: Long): ProductCreateEvent =
-        ProductCreateEvent(id, price)
+    fun createProduct(id: UUID, name: String, totalPrice: Long): ProductCreateEvent =
+        ProductCreateEvent(id, name, price)
 
     override fun getId(): UUID? = id
 }

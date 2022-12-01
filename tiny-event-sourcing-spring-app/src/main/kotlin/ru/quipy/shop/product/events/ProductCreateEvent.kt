@@ -12,6 +12,8 @@ class ProductCreateEvent(
     @Getter
     val productId: UUID,
     @Getter
+    val productName: String,
+    @Getter
     val price: Long
 ) : Event<ProductAggregate>(
     name = "PRODUCT_CREATE_EVENT"
